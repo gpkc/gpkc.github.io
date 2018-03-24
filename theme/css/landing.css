@@ -1,0 +1,132 @@
+body {
+  /* background-color: $white; */
+  background: url("../img/blackorchid/blackorchid.png") repeat;
+  border-top: 6px solid #38c5c5; }
+
+#content-box {
+  padding: 12px;
+  /* margin: 5% auto; */
+  color: #eeeeee;
+  font-weight: 300;
+  font-size: 1.2em;
+  /* border-bottom: 2px solid $accent1; */
+  text-align: center;}
+
+#intro-header {
+  font-weight: 600;
+  text-align: center; }
+#intro-header h1 {
+  font-size: 3.5em;
+  margin-top: 12px;
+  margin-bottom: 12px; }
+
+.centered-nav {
+  text-align: center;
+  padding: 0; }
+  .centered-nav li {
+    display: inline; }
+  .centered-nav a {
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    -ms-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    display: inline-block;
+    color: #eeeeee;
+    text-decoration: none; }
+  .centered-nav a:hover {
+    color: #38c5c5;
+    text-shadow: 0 0 12px #8e927e; }
+
+#nav-links {
+  font-weight: 600;
+  font-size: 1.8em; }
+  #nav-links a {
+    margin: 0 6px;
+    padding: 3px; }
+
+#nav-services li {
+  margin: 6px; }
+
+.svc-badge {
+  font-size: 36px;
+  width: 50px;
+  display: inline-block; }
+
+#contact-form {
+  text-align: center; }
+
+#contact-methods {
+  margin-top: 2em; }
+  #contact-methods li {
+    margin: 0 24px; }
+    #contact-methods li h3 {
+      margin: 0.3em 0; }
+
+
+.no_bg {
+background: rgba(50,50,50,0.8);
+}
+
+#headline {
+padding: 20px;
+margin: 0;
+text-align: center;
+color: rgba(200, 200, 200);
+}
+
+.gototop {
+position: fixed;
+bottom: 20px;
+right: 20px;
+color: #fff;
+font-size: 2em;
+color: rgba(255, 255, 255, 0.3);
+text-decoration: none; !important}
+
+.gototop:hover {
+  color: #38c5c5;
+  text-shadow: 0 0 12px #8e927e;
+}
+
+#tech {
+	background: rgba(255,255,255,0.8);
+	margin: 15px;
+}
+
+#tech li {
+	display: inline;
+	list-style: none;
+	padding: 20px 40px;
+}
+
+#tech img {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+
+.btn,a,.btn:hover,a:hover {
+-webkit-transition: all 0.3s ease-in-out;
+-moz-transition: all 0.3s ease-in-out;
+-ms-transition: all 0.3s ease-in-out;
+-o-transition: all 0.3s ease-in-out;
+transition: all 0.3s ease-in-out;
+outline: none !important;
+}
+
+.btn{border:none;border-radius: 0;padding: 1em 4em;background: rgba(0,0,0,0.5);text-transform: uppercase;}
+.btn:hover,.btn:active{color: #fff;}
+.btn-default{color: #ccc;border: 1px solid #aaa;}
+.btn-default:hover,.btn-default:active{background: rgba(0,0,0,0.8);}
+.btn-primary{color: #fff;background:#666;width: 100%;outline: none;}
+.btn-primary:hover,.btn-primary:active,.btn-primary:focus{background:#333;box-shadow: none;}
+
+section {
+  width: 100%;
+  padding: 0 7%;
+  display: table;
+  margin: 0;
+  max-width: none;
+  height: 100vh;
+}
