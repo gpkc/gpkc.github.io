@@ -27,33 +27,14 @@
         <![endif]-->
 
         <div id="wrapper">
-    <section id="content-box">
-        <header id="intro-header">
-            <h1>Guilherme Caminha</h1>
-            <h2>Computer and Software Engineer.</h2>
-        </header>
-        <div id="intro-copy">
-            
-        </div>
-        <nav>
-            <ul id="nav-links" class="centered-nav">
-                    <li><a href="https://gpkc.github.io/blog">Blog</a></li>
-                    <li><a href="https://gpkc.github.io/">Projects</a></li>
-                    <li><a href="https://gpkc.github.io/contact">Contact</a></li>
-            </ul>
-        </nav>
-        <a id="scroll_btn" href="#tech_section" class="btn btn-default explore">See more</a>
-    </section>
-
-    <section id="tech_section" class="no_bg">
-      <h1 id="headline">Few projects I </h1>
-      <ul id="tech" class="">
-        aaa
-      </ul>
-    </section>
-
-    <nav>
-        <ul id="nav-services" class="centered-nav">
+<div id="content-box">
+    <header id="intro-header">
+        <h1>Guilherme Caminha</h1>
+    </header>
+    <div id="contact-form">
+        <h2>Computer and Software Engineer.</h2>
+        
+        <ul id="contact-methods" class="centered-nav">
 
 
     <li><a href="#" id="email-lnk"><i class="fa fa-envelope svc-badge"></i></a></li>
@@ -62,9 +43,16 @@
         // JS ROT13 by http://techblog.tilllate.com/2008/07/20/ten-methods-to-obfuscate-e-mail-addresses-compared/
         document.getElementById("email-lnk").href = "mailto:" + "thvyurezr@cenpvnab.pbz.oe".replace(/[a-zA-Z]/g, function(c){return String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);});
     </script>
-                <li><a href="https://twitter.com/GPKCaminha" target="twitter"><i class="fa fa-twitter svc-badge"></i></a></li>
-                <li><a href="https://github.com/gpkc" target="github-alt"><i class="fa fa-github-alt svc-badge"></i></a></li>
-                <li><a href="https://bitbucket.org/Estanho" target="bitbucket"><i class="fa fa-bitbucket svc-badge"></i></a></li>
+            <li><a href="https://twitter.com/GPKCaminha" target="twitter"><i class="fa fa-twitter svc-badge"></i></a></li>
+            <li><a href="https://github.com/gpkc" target="github-alt"><i class="fa fa-github-alt svc-badge"></i></a></li>
+            <li><a href="https://bitbucket.org/Estanho" target="bitbucket"><i class="fa fa-bitbucket svc-badge"></i></a></li>
+        </ul>
+    </div>
+    <hr/>
+    <nav>
+        <ul id="nav-links" class="centered-nav">
+                <li><a href="https://gpkc.github.io/">Home</a></li>
+                <li><a href="https://gpkc.github.io/blog">Blog</a></li>
         </ul>
     </nav>
 <footer id="site-info">
@@ -72,21 +60,8 @@
         Powered by <a href="http://getpelican.com/" target="pelican">Pelican</a> and <a href="http://python.org/" target="python">Python</a>. <br/>
         Contents are <a href="http://creativecommons.org/licenses/by/4.0/" target="pelican">(CC BY 4.0)</a> - Copy and share!
     </p>
-</footer>
-    <a href="#content-box" class="gototop fa fa-arrow-circle-up explore"></a>
+</footer></div>
 
-<script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery(document).ready(function($) {
-
-   $(".explore").click(function(event){
-     event.preventDefault();
-     $('html,body').animate({scrollTop:$(this.hash).offset().top}, 600,'swing');
-     $(".scroll li").removeClass('active');
-     $(this).parents('li').toggleClass('active');
-   });
-  });
-</script>
         </div>
 
         <script src="https://gpkc.github.io/theme/js/main.js" type="text/javascript"></script>
