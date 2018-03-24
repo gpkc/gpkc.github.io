@@ -166,3 +166,7 @@ body {
 
   #site-info {
     font-size: 0.6em; } }
+
+.active > a {
+    background-color: #337ab7;
+}
