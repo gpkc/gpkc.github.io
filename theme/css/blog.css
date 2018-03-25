@@ -24,9 +24,14 @@ body {
   -moz-transition: all 0.3s;
   -ms-transition: all 0.3s;
   -o-transition: all 0.3s;
-  transition: all 0.3s; }
-  #site-title:hover {
-    color: #38c5c5; }
+  transition: all 0.3s;
+  margin: 0.1em 0px;}
+#site-title:hover {
+  color: #38c5c5; }
+
+#site-title h1 {
+  font-size: 1.3em;
+  margin: 0.1em 0px; }
 
 #site-desc {
   font-size: 1.3em;
@@ -141,7 +146,8 @@ body {
       display: inline-block; }
 
   #site-title h1 {
-    margin-top: 0; }
+    margin-top: 0;
+  margin: 0.1em 0px; }
 
   #site-header {
     margin-left: 18px; }
@@ -167,6 +173,34 @@ body {
   #site-info {
     font-size: 0.6em; } }
 
-.active > a {
+.active a {
     background-color: #337ab7;
 }
+
+#contact-form {
+  text-align: center; }
+
+#contact-methods {
+  margin-top: 2em; }
+#contact-methods li {
+  margin: 0 24px; }
+#contact-methods li h3 {
+  margin: 0.3em 0; }
+
+.centered-nav {
+  text-align: center;
+  padding: 0; }
+.centered-nav li {
+  display: inline; }
+.centered-nav a {
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  transition: all 0.3s;
+  display: inline-block;
+  color: #eeeeee;
+  text-decoration: none; }
+.centered-nav a:hover {
+  color: #38c5c5;
+  text-shadow: 0 0 12px #8e927e; }
