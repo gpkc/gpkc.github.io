@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Praciano - js</title><link href="https://gpkc.github.io/" rel="alternate"></link><link href="https://gpkc.github.io/feeds/js.atom.xml" rel="self"></link><id>https://gpkc.github.io/</id><updated>2018-03-30T00:00:00-03:00</updated><entry><title>Your first Neural Network running in the Front-End using JavaScript</title><link href="https://gpkc.github.io/blog/your-first-neural-network-running-in-the-front-end-using-javascript" rel="alternate"></link><published>2018-03-30T00:00:00-03:00</published><updated>2018-03-30T00:00:00-03:00</updated><author><name>Guilherme Caminha</name></author><id>tag:gpkc.github.io,2018-03-30:/blog/your-first-neural-network-running-in-the-front-end-using-javascript</id><summary type="html">&lt;p&gt;It’s no news that Machine Learning have become a huge trend lately. However,
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Praciano - js</title><link href="https://praciano.com.br/" rel="alternate"></link><link href="https://praciano.com.br/feeds/js.atom.xml" rel="self"></link><id>https://praciano.com.br/</id><updated>2018-03-30T00:00:00-03:00</updated><entry><title>Your first Neural Network running in the Front-End using JavaScript</title><link href="https://praciano.com.br/blog/your-first-neural-network-running-in-the-front-end-using-javascript" rel="alternate"></link><published>2018-03-30T00:00:00-03:00</published><updated>2018-03-30T00:00:00-03:00</updated><author><name>Guilherme Caminha</name></author><id>tag:praciano.com.br,2018-03-30:/blog/your-first-neural-network-running-in-the-front-end-using-javascript</id><summary type="html">&lt;p&gt;It’s no news that Machine Learning have become a huge trend lately. However,
 it’s also not uncommon for people to avoid using techniques and technologies
 based on Machine Learning due to its frightening mathy nature.&lt;/p&gt;
 &lt;p&gt;However, that’s not an excuse anymore. There are today several frameworks and …&lt;/p&gt;</summary><content type="html">&lt;p&gt;It’s no news that Machine Learning have become a huge trend lately. However,
@@ -97,7 +97,7 @@ pre-built &lt;a href="https://github.com/cazala/mnist"&gt;&lt;span class="caps"&
 &lt;a href="https://github.com/gpkc/MNIST-Node"&gt;here&lt;/a&gt;. It consists of a small library
 that will train a model using a subset of the &lt;span class="caps"&gt;MNIST&lt;/span&gt; dataset, and then try to
 predict some handwritten digits.&lt;/p&gt;
-&lt;p&gt;&lt;img alt="Photo" src="https://gpkc.github.io/blog/your-first-neural-network-running-in-the-front-end-using-javascript/mnist_model.png"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Photo" src="https://praciano.com.br/blog/your-first-neural-network-running-in-the-front-end-using-javascript/mnist_model.png"/&gt;&lt;/p&gt;
 &lt;h3&gt;src/train.js&lt;/h3&gt;
 &lt;p&gt;This is our training file. It is responsible for providing some helper functions
 for training our model, and creating the Neural Network itself. When we use the
