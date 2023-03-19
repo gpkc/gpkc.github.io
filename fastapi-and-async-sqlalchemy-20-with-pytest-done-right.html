@@ -1,0 +1,628 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://praciano.com.br/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://praciano.com.br/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://praciano.com.br/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://praciano.com.br/theme/pygments/emacs.min.css">
+
+
+
+  <link rel="stylesheet" type="text/css" href="https://praciano.com.br/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://praciano.com.br/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://praciano.com.br/theme/font-awesome/css/solid.css">
+
+
+  <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+
+  <!-- Chrome, Firefox OS and Opera -->
+  <meta name="theme-color" content="#333">
+  <!-- Windows Phone -->
+  <meta name="msapplication-navbutton-color" content="#333">
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Microsoft EDGE -->
+  <meta name="msapplication-TileColor" content="#333">
+
+  <link href="https://praciano.com.br/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Praciano Atom">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-W4CJ7LHKBD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W4CJ7LHKBD');
+</script>
+
+
+
+
+
+
+ 
+
+<meta name="author" content="Guilherme Caminha" />
+<meta name="description" content="Introduction In this post we&#39;re going to see how to use FastAPI together with SQLAlchemy 2.0 new async features, and how to configure pytest to run async database tests. I&#39;ve built this project using Python 3.11, so it might not work on earlier versions. However, you should be …" />
+<meta name="keywords" content="">
+
+
+  <meta property="og:site_name" content="Praciano"/>
+  <meta property="og:title" content="FastAPI and async SQLAlchemy 2.0 with pytest done right"/>
+  <meta property="og:description" content="Introduction In this post we&#39;re going to see how to use FastAPI together with SQLAlchemy 2.0 new async features, and how to configure pytest to run async database tests. I&#39;ve built this project using Python 3.11, so it might not work on earlier versions. However, you should be …"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://praciano.com.br/fastapi-and-async-sqlalchemy-20-with-pytest-done-right.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2023-03-19 16:53:00+01:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://praciano.com.br/author/guilherme-caminha.html">
+  <meta property="article:section" content="FastAPI"/>
+  <meta property="og:image" content="">
+
+  <title>Praciano &ndash; FastAPI and async SQLAlchemy 2.0 with pytest done right</title>
+
+
+</head>
+<body >
+
+<aside>
+  <div>
+    <h1>
+      <a href="https://praciano.com.br/"></a>
+    </h1>
+
+    <p>Computer and Software Engineer.</p>
+
+
+    <nav>
+      <ul class="list">
+
+
+
+          <li>
+            <a target="_self" href="/" >Home</a>
+          </li>
+          <li>
+            <a target="_self" href="/archives.html" >Archives</a>
+          </li>
+          <li>
+            <a target="_self" href="/categories.html" >Categories</a>
+          </li>
+          <li>
+            <a target="_self" href="/tags.html" >Tags</a>
+          </li>
+      </ul>
+    </nav>
+
+    <ul class="social">
+      <li>
+        <a class="sc-twitter"
+           href="https://twitter.com/GPKCaminha"
+           target="_blank">
+          <i class="fa-brands fa-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="sc-github"
+           href="https://github.com/gpkc"
+           target="_blank">
+          <i class="fa-brands fa-github"></i>
+        </a>
+      </li>
+      <li>
+        <a class="sc-bitbucket"
+           href="https://bitbucket.org/Estanho"
+           target="_blank">
+          <i class="fa-brands fa-bitbucket"></i>
+        </a>
+      </li>
+      <li>
+        <a class="sc-linkedin"
+           href="https://www.linkedin.com/in/guilherme-caminha"
+           target="_blank">
+          <i class="fa-brands fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</aside>
+  <main>
+
+
+<article class="single">
+  <header>
+      
+    <h1 id="fastapi-and-async-sqlalchemy-20-with-pytest-done-right">FastAPI and async SQLAlchemy 2.0 with pytest done right</h1>
+    <p>
+      Posted on Sun 19 March 2023 in <a href="https://praciano.com.br/category/fastapi.html">FastAPI</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <h1>Introduction</h1>
+<p>In this post we're going to see how to use <a href="https://fastapi.tiangolo.com">FastAPI</a> together with <a href="https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html">SQLAlchemy 2.0</a> new async features, and how to configure pytest to run async database tests. I've built this project using Python 3.11, so it might not work on earlier versions. However, you should be able to adapt it if needed.</p>
+<h1>Requirements</h1>
+<p>Get the code from the <a href="https://github.com/gpkc/fastapi-sqlalchemy-pytest">GitHub repository</a>.</p>
+<p>For this post we're going to use <a href="https://python-poetry.org">poetry</a> version 1.4.0 or higher to manage our dependencies. If you don't have it installed, you can install it with pip:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>poetry
+</code></pre></div>
+
+<p>In the <code>pyproject.toml</code> file you can see the dependencies we're going to use. This file will have three dependency groups. The first one is for the main dependencies, the second one is for the development dependencies, and the third one is for the test dependencies.</p>
+<p>It also contains some general settings for the project, such as some pytest configuration (highlight to the <code>asyncio_mode = "auto"</code> setting which automatically detects if the tests are async or not) and <code>mypy</code> configuration.</p>
+<p>You might notice that we have both <code>psycopg</code> (a.k.a. <code>psycopg3</code>) and <code>asyncpg</code> installed. The reason for this is that one of our test dependencies, <code>pytest-postgresql</code>, requires <code>psycopg</code>. However, we're going to use <code>asyncpg</code> to connect to the database from the main application, so we need to install both. This won't cause any issues, as long as they don't have clashing common dependencies. Also, in production, <code>psycopg</code> will not be installed, as it's only used for testing.</p>
+<p>I've opted for using <code>asyncpg</code> for production mainly because of its higher performance and community support. However, you can just use <code>psycopg</code> if you prefer, since it also supports async (and our tests will not be patching the async capabilities of our app).</p>
+<p>Start by running <code>poetry install</code> to install the dependencies and generate a new virtual environment.
+After that, you can run <code>poetry shell</code> to activate the virtual environment.</p>
+<h1>Setting up the database</h1>
+<p>We're going to use FastAPI to create a simple API that will allow us to create and retrieve users from a database.
+The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so we're not going to focus on the API itself.</p>
+<p>Let's start by creating a configuration file that will hold our database connection string:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/config.py</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+    <span class="n">DB_CONFIG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
+        <span class="s2">&quot;DB_CONFIG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;postgresql+asyncpg://</span><span class="si">{DB_USER}</span><span class="s2">:</span><span class="si">{DB_PASSWORD}</span><span class="s2">@</span><span class="si">{DB_HOST}</span><span class="s2">/</span><span class="si">{DB_NAME}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">DB_USER</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_USER&quot;</span><span class="p">,</span> <span class="s2">&quot;fastapi&quot;</span><span class="p">),</span>
+            <span class="n">DB_PASSWORD</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_PASSWORD&quot;</span><span class="p">,</span> <span class="s2">&quot;fastapi-password&quot;</span><span class="p">),</span>
+            <span class="n">DB_HOST</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;fastapi-postgresql:5432&quot;</span><span class="p">),</span>
+            <span class="n">DB_NAME</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;fastapi&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span>
+</code></pre></div>
+
+<p>This configuration file will be used to get the database connection string from the environment variables. I'm not going to cover how to start a local PostgreSQL database in this post, but you can, for example, use the official <a href="https://hub.docker.com/_/postgres">PostgreSQL Docker image</a> to start a local database. Just make sure to set the environment variables <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_HOST</code> and <code>DB_NAME</code> accordingly.</p>
+<p>Then, we need to set up how the database connection and session handling will work. This is where the special async configuration of SQLAlchemy 2.0 comes into play.</p>
+<p>Let's start with the import statements:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/services/database.py</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AsyncIterator</span>
+
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Depends</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_async_engine</span><span class="p">,</span>
+    <span class="n">async_sessionmaker</span><span class="p">,</span>
+    <span class="n">AsyncSession</span><span class="p">,</span>
+    <span class="n">AsyncConnection</span><span class="p">,</span>
+    <span class="n">AsyncEngine</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+</code></pre></div>
+
+<p>Notice that we're importing the async versions of the SQLAlchemy classes and factories.</p>
+<p>Then, let's create a session manager for our database. This class will be used as a singleton and will be responsible for abstracting the database connection and session handling:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/services/database.py</span>
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">DatabaseSessionManager</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">:</span> <span class="n">AsyncEngine</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sessionmaker</span><span class="p">:</span> <span class="n">async_sessionmaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">create_async_engine</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sessionmaker</span> <span class="o">=</span> <span class="n">async_sessionmaker</span><span class="p">(</span><span class="n">autocommit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DatabaseSessionManager is not initialized&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+
+    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">asynccontextmanager</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DatabaseSessionManager is not initialized&quot;</span><span class="p">)</span>
+
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">connection</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+                <span class="k">raise</span>
+
+    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">asynccontextmanager</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncSession</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sessionmaker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DatabaseSessionManager is not initialized&quot;</span><span class="p">)</span>
+
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sessionmaker</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">session</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">raise</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># Used for testing</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">create_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="n">AsyncConnection</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">connection</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">drop_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="n">AsyncConnection</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">connection</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">)</span>
+
+<span class="n">sessionmanager</span> <span class="o">=</span> <span class="n">DatabaseSessionManager</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Notice that we're applying the <code>await</code> keywords to the async methods of the SQLAlchemy classes. This is because we're using the async version of the <code>create_engine</code> method, which returns an <code>AsyncEngine</code> object. We will also use the async version of the <code>sessionmaker</code> method, which returns an <code>AsyncSession</code> object for committing and rolling back transactions.</p>
+<p>Then, we need to create a FastAPI dependency that will be used to get the database session from the request. This dependency will be used in the API views:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/services/database.py</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_db</span><span class="p">():</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">session</span>
+</code></pre></div>
+
+<p>And we're done with the base database configuration. Now we can create the database models:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/models.py</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">select</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">IntegrityError</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">NoResultFound</span>
+
+<span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">Base</span>
+
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">full_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+
+        <span class="n">transaction</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">raise</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transaction</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transaction</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">transaction</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="bp">cls</span><span class="p">)))</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Here we have a simple <code>User</code> model with a <code>create</code>, <code>get</code> and <code>get_all</code> class methods. These methods will be used to create, retrieve and list users from the database from our API views. Notice that they are all marked as <code>async</code> methods, and we're using <code>await</code> for the database operations.</p>
+<h1>Creating the API views</h1>
+<p>Now that we have the database configuration and models set up, we can create the API views. Let's start by creating a <code>user</code> module:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/views/user.py</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">APIRouter</span><span class="p">,</span> <span class="n">Depends</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+
+<span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">get_db</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
+
+<span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">User</span> <span class="k">as</span> <span class="n">UserModel</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/user&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">])</span>
+
+
+<span class="k">class</span> <span class="nc">UserSchemaBase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">email</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">full_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">class</span> <span class="nc">UserSchemaCreate</span><span class="p">(</span><span class="n">UserSchemaBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">UserSchema</span><span class="p">(</span><span class="n">UserSchemaBase</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">orm_mode</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get-user&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">UserSchema</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">)):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">user</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get-users&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">UserSchema</span><span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_users</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">)):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="k">await</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">users</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/create-user&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">UserSchema</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserSchemaCreate</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">)):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="o">**</span><span class="n">user</span><span class="o">.</span><span class="n">dict</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">user</span>
+</code></pre></div>
+
+<p>Here we have a simple FastAPI router with three API views: <code>get_user</code>, <code>get_users</code> and <code>create_user</code>. Notice that we're using the <code>Depends</code> keyword to inject the database async session into the API views. This is how we can use the database session in the API views.</p>
+<h1>Setting up FastAPI</h1>
+<p>Now that we have the API views set up, we can create the FastAPI application.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/__init__.py</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
+
+<span class="kn">from</span> <span class="nn">app.config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">sessionmanager</span>
+
+
+<span class="k">def</span> <span class="nf">init_app</span><span class="p">(</span><span class="n">init_db</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;FastAPI server&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">init_db</span><span class="p">:</span>
+        <span class="n">sessionmanager</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DB_CONFIG</span><span class="p">)</span>
+
+        <span class="nd">@server</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;shutdown&quot;</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">shutdown</span><span class="p">():</span>
+            <span class="k">await</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="kn">from</span> <span class="nn">app.views.user</span> <span class="kn">import</span> <span class="n">router</span> <span class="k">as</span> <span class="n">user_router</span>
+
+    <span class="n">server</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">user_router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">server</span>
+</code></pre></div>
+
+<p>Here we have a simple function that creates the FastAPI application. We're also initializing the database session manager here, and registering a shutdown event to close the database connection pool when the application is shut down.</p>
+<p>The reason we have the <code>init_db</code> parameter is because we want to be able to create the FastAPI application without initializing the database connection. This is useful for testing, because we want to have a custom database initialization for testing.</p>
+<p>We can now run <code>mypy</code> to check if all our type annotations are correct:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>mypy<span class="w"> </span>app
+Success:<span class="w"> </span>no<span class="w"> </span>issues<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>files
+</code></pre></div>
+
+<p>This should be enough for setting up a FastAPI application with SQLAlchemy 2.0. However, we're still missing how to run the application and how to test it. In order for us to run our application, first we'll need to create our database tables. Let's see how we can do that using Alembic.</p>
+<h1>Migrations with Alembic</h1>
+<p>In our repository, I've already included the alembic configuration. However, I'll show you how to set up alembic from scratch. If you want to follow along, simply delete the <code>alembic</code> directory and the <code>alembic.ini</code> file.</p>
+<p>To start with alembic, we can use the <code>alembic init</code> command to create the alembic configuration. We'll use the <code>async</code> template for this:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>alembic<span class="w"> </span>init<span class="w"> </span>-t<span class="w"> </span>async<span class="w"> </span>alembic
+</code></pre></div>
+
+<p>This will create the <code>alembic</code> directory with the alembic configuration. We'll need to make a few changes to the configuration.</p>
+<p>First, we'll need to import our database models so that they're added to the <code>Base.metadata</code> object. This happens automatically when the model inherits from <code>Base</code>, but we need to import the models to ensure that they're imported before the alembic configuration is loaded. Then, we need to set the <code>sqlalchemy.url</code> configuration to use our database connection string. And finally, we'll point the <code>target metadata</code> to our <code>Base.metadata</code> object.</p>
+<p>Below I'll show the changes we need to make to the <code>alembic/env.py</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># alembic/env.py</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">app.config</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">app_config</span>
+<span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">Base</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">config</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_main_option</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.url&quot;</span><span class="p">,</span> <span class="n">app_config</span><span class="o">.</span><span class="n">DB_CONFIG</span><span class="p">)</span>
+<span class="n">target_metadata</span> <span class="o">=</span> <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span>
+</code></pre></div>
+
+<p>Then, we're able to run the <code>alembic revision</code> command to create a new revision:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>alembic<span class="w"> </span>revision<span class="w"> </span>--autogenerate<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Adding user model&quot;</span>
+</code></pre></div>
+
+<p>This will create a new revision file in the <code>alembic/versions</code> directory. We can then run the <code>alembic upgrade head</code> command to apply the migration to the database:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</code></pre></div>
+
+<h1>Starting the server</h1>
+<p>To start the server, run <code>uvicorn run:server --reload</code>. This will start the server on port 8000 by default. The docs will be available at <code>http://localhost:8000/docs</code>. You should be able to see and run any of the API views that we've created.</p>
+<p>This should be enough to start using FastAPI with SQLAlchemy 2.0. However, one important component of software development is testing, so let's see how we can test our API views.</p>
+<h1>Testing the API views</h1>
+<p>Here I will be mostly interested in showing how to do integration testing with FastAPI and SQLAlchemy 2.0. This means that our tests will call the API views and check the responses. We will not be testing the database models, but a similar setup should work.</p>
+<p>Let's start by creating a <code>conftest.py</code> file in the root of our <code>tests/integration</code> directory. This file will be responsible for setting up the test database and creating the FastAPI application for testing. Since this is an intricate setup, let's again break it down into smaller pieces. We'll start with the imports:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/conftest.py</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">fastapi.testclient</span> <span class="kn">import</span> <span class="n">TestClient</span>
+<span class="kn">from</span> <span class="nn">pytest_postgresql</span> <span class="kn">import</span> <span class="n">factories</span>
+<span class="kn">from</span> <span class="nn">pytest_postgresql.janitor</span> <span class="kn">import</span> <span class="n">DatabaseJanitor</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.testing.entities</span> <span class="kn">import</span> <span class="n">ComparableEntity</span>
+
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">init_app</span>
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">get_db</span><span class="p">,</span> <span class="n">sessionmanager</span>
+</code></pre></div>
+
+<p>There isn't much action going here. We're importing the necessary packages, and the <code>init_app</code> function from our application. Let's move on and create our <code>app</code> and <code>client</code> fixtures, used to create the FastAPI test application and test client:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/conftest.py</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">app</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">ExitStack</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">init_app</span><span class="p">(</span><span class="n">init_db</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">TestClient</span><span class="p">(</span><span class="n">app</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">c</span>
+</code></pre></div>
+
+<p>This is very standard code so far. Notice that we passed <code>init_db=False</code> to the <code>init_app</code> function. This is because we want to initialize the database connection manually, so that we can create the test database.</p>
+<p>Now we'll use the <code>pytest-postgresql</code> package to create a test database. This package will create a test database for us, and will also clean it up after the tests are done.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/conftest.py</span>
+<span class="n">test_db</span> <span class="o">=</span> <span class="n">factories</span><span class="o">.</span><span class="n">postgresql_proc</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s2">&quot;test_db&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And now we're ready to create the database connection and session. Our test connection will be scoped to the session, so that we can use the same connection for all the tests, as it's best practice to avoid creating a new connection for each test, or even request.</p>
+<p>However, we'll need to create a new session-scoped event loop fixture, because the default event loop fixture is function-scoped. Let's start with the connection fixture:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/conftest.py</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;session&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">event_loop</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop_policy</span><span class="p">()</span><span class="o">.</span><span class="n">new_event_loop</span><span class="p">()</span>
+    <span class="k">yield</span> <span class="n">loop</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;session&quot;</span><span class="p">,</span> <span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">connection_test</span><span class="p">(</span><span class="n">test_db</span><span class="p">,</span> <span class="n">event_loop</span><span class="p">):</span>
+    <span class="n">pg_host</span> <span class="o">=</span> <span class="n">test_db</span><span class="o">.</span><span class="n">host</span>
+    <span class="n">pg_port</span> <span class="o">=</span> <span class="n">test_db</span><span class="o">.</span><span class="n">port</span>
+    <span class="n">pg_user</span> <span class="o">=</span> <span class="n">test_db</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">pg_db</span> <span class="o">=</span> <span class="n">test_db</span><span class="o">.</span><span class="n">dbname</span>
+    <span class="n">pg_password</span> <span class="o">=</span> <span class="n">test_db</span><span class="o">.</span><span class="n">password</span>
+
+    <span class="k">with</span> <span class="n">DatabaseJanitor</span><span class="p">(</span>
+        <span class="n">pg_user</span><span class="p">,</span> <span class="n">pg_host</span><span class="p">,</span> <span class="n">pg_port</span><span class="p">,</span> <span class="n">pg_db</span><span class="p">,</span> <span class="n">test_db</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">pg_password</span>
+    <span class="p">):</span>
+        <span class="n">connection_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;postgresql+psycopg://</span><span class="si">{</span><span class="n">pg_user</span><span class="si">}</span><span class="s2">:@</span><span class="si">{</span><span class="n">pg_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pg_port</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">pg_db</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">sessionmanager</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">connection_str</span><span class="p">)</span>
+        <span class="k">yield</span>
+        <span class="k">await</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+
+<p>The <code>DatabaseJanitor</code> manages the state of the database, but we need to create the connection ande session. Here we're initializing our <code>sessionmanager</code> singleton with the connection settings provided by the <code>postgresql_proc</code> fixture. After our tests are finished, we'll call the <code>close</code> method to <code>dispose</code> our async database engine.</p>
+<p>Finally, let's create a function-scoped fixture that will handle creating the database session for each test:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/conftest.py</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span> <span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">create_tables</span><span class="p">(</span><span class="n">connection_test</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span> <span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">session_override</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">connection_test</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_db_override</span><span class="p">():</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">session</span>
+
+    <span class="n">app</span><span class="o">.</span><span class="n">dependency_overrides</span><span class="p">[</span><span class="n">get_db</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_db_override</span>
+</code></pre></div>
+
+<p>Here we're creating the database tables from scratch for each test. Having this done in an isolated connection will ensure that these operations are finished before our tests run. We also don't have to bother with cleaning up the database after the tests are done, because the <code>DatabaseJanitor</code> will take care of that for us.</p>
+<p>We're also overriding the <code>get_db</code> FastAPI dependency we've created earlier with a new dependency that will return our test session. Notice that, as was the case with the original <code>get_db</code> dependency, this will ensure that each time we call a FastAPI endpoint, we'll be using a new isolated session. Since our <code>app</code> fixture is</p>
+<p>And that's it! We're now ready to write our first test.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/test_create_user.py</span>
+<span class="k">def</span> <span class="nf">test_create_user</span><span class="p">(</span><span class="n">client</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/api/user/get-users&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="s2">&quot;/api/user/create-user&quot;</span><span class="p">,</span>
+        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;test@example.com&quot;</span><span class="p">,</span> <span class="s2">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Full Name Test&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/api/user/get-user?id=</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;test@example.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Full Name Test&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/api/user/get-users&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+
+<p>This test is pretty straightforward. We're calling the <code>get-users</code> endpoint, which should return an empty list, since we haven't created any users yet. Then we're calling the <code>create-user</code> endpoint, and checking that the response is successful. Finally, we're calling the <code>get-user</code> endpoint, and checking that the response contains the data of the user we've just created. We're also checking that the <code>get-users</code> endpoint returns a list with a single user.</p>
+<p>To run our newly created test, we can just run the <code>pytest</code> command:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>pytest<span class="w"> </span>tests/integration
+</code></pre></div>
+
+<h1>Conclusion</h1>
+<p>In this article, we've learned how to create a FastAPI application connected with SQLAlchemy 2.0, and how to write tests for it. We've also seen how to use Alembic to create database migrations, and how to use the <code>pytest-postgresql</code> package to create a test database.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+    </p>
+  </div>
+
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'Praciano';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+<footer>
+<p>
+  &copy; 2023  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
+</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://praciano.com.br/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+           src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p></footer>  </main>
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Praciano ",
+  "url" : "https://praciano.com.br",
+  "image": "",
+  "description": ""
+}
+</script>
+</body>
+</html>
