@@ -198,7 +198,8 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span>
 </code></pre></div>
 
-<p>This configuration file will be used to get the database connection string from the environment variables. I'm not going to cover how to start a local PostgreSQL database in this post, but you can, for example, use the official <a href="https://hub.docker.com/_/postgres">PostgreSQL Docker image</a> to start a local database. Just make sure to set the environment variables <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_HOST</code> and <code>DB_NAME</code> accordingly.</p>
+<p>This configuration file will be used to get the database connection string from the environment variables. Notice that we're using the <code>postgresql+asyncpg</code> dialect, which is the one that will allow us to use async SQLAlchemy 2.0.</p>
+<p>I'm not going to cover how to start a local PostgreSQL database in this post, but you can, for example, use the official <a href="https://hub.docker.com/_/postgres">PostgreSQL Docker image</a> to start a local database. Just make sure to set the environment variables <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_HOST</code> and <code>DB_NAME</code> accordingly.</p>
 <p>Then, we need to set up how the database connection and session handling will work. This is where the special async configuration of SQLAlchemy 2.0 comes into play.</p>
 <p>Let's start with the import statements:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/services/database.py</span>
@@ -206,13 +207,8 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AsyncIterator</span>
 
 <span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Depends</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">create_async_engine</span><span class="p">,</span>
-    <span class="n">async_sessionmaker</span><span class="p">,</span>
-    <span class="n">AsyncSession</span><span class="p">,</span>
-    <span class="n">AsyncConnection</span><span class="p">,</span>
-    <span class="n">AsyncEngine</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AsyncConnection</span><span class="p">,</span> <span class="n">AsyncEngine</span><span class="p">,</span> <span class="n">AsyncSession</span><span class="p">,</span>
+                                    <span class="n">async_sessionmaker</span><span class="p">,</span> <span class="n">create_async_engine</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">declarative_base</span>
 </code></pre></div>
 
@@ -234,6 +230,8 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DatabaseSessionManager is not initialized&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sessionmaker</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@contextlib</span><span class="o">.</span><span class="n">asynccontextmanager</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
@@ -284,9 +282,8 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 
 <span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">select</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">IntegrityError</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">IntegrityError</span><span class="p">,</span> <span class="n">NoResultFound</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">NoResultFound</span>
 
 <span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">Base</span>
 
@@ -304,14 +301,7 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 
         <span class="n">transaction</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-            <span class="k">raise</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-            <span class="k">raise</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">transaction</span>
 
@@ -334,9 +324,9 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 <div class="highlight"><pre><span></span><code><span class="c1"># app/views/user.py</span>
 <span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">APIRouter</span><span class="p">,</span> <span class="n">Depends</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
 
 <span class="kn">from</span> <span class="nn">app.services.database</span> <span class="kn">import</span> <span class="n">get_db</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
 
 <span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">User</span> <span class="k">as</span> <span class="n">UserModel</span>
 
@@ -380,6 +370,7 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 <h1>Setting up FastAPI</h1>
 <p>Now that we have the API views set up, we can create the FastAPI application.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/__init__.py</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
 <span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
 
 <span class="kn">from</span> <span class="nn">app.config</span> <span class="kn">import</span> <span class="n">config</span>
@@ -387,14 +378,18 @@ The main point here is to show how to use async SQLAlchemy 2.0 with FastAPI, so 
 
 
 <span class="k">def</span> <span class="nf">init_app</span><span class="p">(</span><span class="n">init_db</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="n">server</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;FastAPI server&quot;</span><span class="p">)</span>
+    <span class="n">lifespan</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">init_db</span><span class="p">:</span>
         <span class="n">sessionmanager</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DB_CONFIG</span><span class="p">)</span>
 
-        <span class="nd">@server</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;shutdown&quot;</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">shutdown</span><span class="p">():</span>
-            <span class="k">await</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nd">@asynccontextmanager</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">):</span>
+            <span class="k">yield</span>
+            <span class="k">if</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">sessionmanager</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">server</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;FastAPI server&quot;</span><span class="p">,</span> <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">)</span>
 
     <span class="kn">from</span> <span class="nn">app.views.user</span> <span class="kn">import</span> <span class="n">router</span> <span class="k">as</span> <span class="n">user_router</span>
 
